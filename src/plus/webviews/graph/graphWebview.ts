@@ -35,7 +35,7 @@ import type { Container } from '../../../container';
 import { getContext, onDidChangeContext } from '../../../context';
 import { PlusFeatures } from '../../../features';
 import { GitSearchError } from '../../../git/errors';
-import { getBranchNameWithoutRemote, getRemoteNameFromBranchName } from '../../../git/models/branch';
+import { getBranchId, getBranchNameWithoutRemote, getRemoteNameFromBranchName } from '../../../git/models/branch';
 import { GitContributor } from '../../../git/models/contributor';
 import { GitGraphRowType } from '../../../git/models/graph';
 import type { GitGraph } from '../../../git/models/graph';
@@ -93,6 +93,7 @@ import type {
 	GraphHiddenRef,
 	GraphHiddenRefs,
 	GraphHostingServiceType,
+	GraphIncludeRef,
 	GraphMissingRefsMetadataType,
 	GraphPullRequestMetadata,
 	GraphRefMetadata,
@@ -1012,6 +1013,7 @@ export class GraphWebview extends WebviewBase<State> {
 
 		return this.notify(DidChangeRefsVisibilityNotificationType, {
 			hiddenRefs: this.getHiddenRefs(this._graph),
+			includeRefs: this.getIncludeRefs(this._graph),
 		});
 	}
 
@@ -1210,6 +1212,26 @@ export class GraphWebview extends WebviewBase<State> {
 
 	private getHiddenRefs(graph: GitGraph | undefined): Record<string, GraphHiddenRef> | undefined {
 		return this.filterHiddenRefs(this.container.storage.getWorkspace('graph:hiddenRefs'), graph);
+	}
+
+	private getIncludeRefs(graph: GitGraph | undefined): Record<string, GraphIncludeRef> | undefined {
+		if (graph == null) return undefined;
+
+		if (Math.random() < 0.5) return {};
+
+		return {
+			[getBranchId(graph.repoPath, false, 'main')]: {
+				id: getBranchId(graph.repoPath, false, 'main'),
+				name: 'main',
+				type: 'head',
+			},
+			[getBranchId(graph.repoPath, true, 'main')]: {
+				id: getBranchId(graph.repoPath, true, 'main'),
+				name: 'main',
+				type: 'head',
+				owner: 'origin',
+			},
+		};
 	}
 
 	private filterHiddenRefs(
@@ -1432,6 +1454,7 @@ export class GraphWebview extends WebviewBase<State> {
 				header: this.getColumnHeaderContext(columns),
 			},
 			hiddenRefs: data != null ? this.getHiddenRefs(data) : undefined,
+			includeRefs: data != null ? this.getIncludeRefs(data) : undefined,
 			nonce: this.cspNonce,
 			workingTreeStats: getSettledValue(workingStatsResult) ?? { added: 0, deleted: 0, modified: 0 },
 		};
