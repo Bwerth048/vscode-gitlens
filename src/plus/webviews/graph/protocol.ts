@@ -1,5 +1,6 @@
 import type {
 	CssVariables,
+	ExcludeRefsById,
 	GraphColumnSetting,
 	GraphContexts,
 	GraphRef,
@@ -7,9 +8,8 @@ import type {
 	GraphRow,
 	GraphZoneType,
 	Head,
-	HiddenRefsById,
 	HostingServiceType,
-	IncludeRefsById,
+	IncludeOnlyRefsById,
 	PullRequestMetadata,
 	RefMetadata,
 	RefMetadataType,
@@ -57,8 +57,8 @@ export interface State {
 	trialBanner?: boolean;
 	workingTreeStats?: GraphWorkingTreeStats;
 	searchResults?: DidSearchParams['results'];
-	hiddenRefs?: GraphHiddenRefs;
-	includeRefs?: GraphIncludeRefs;
+	excludeRefs?: GraphExcludeRefs;
+	includeOnlyRefs?: GraphIncludeOnlyRefs;
 
 	// Props below are computed in the webview (not passed)
 	activeRow?: string;
@@ -118,10 +118,10 @@ export interface GraphColumnConfig {
 
 export type GraphColumnsConfig = { [name: string]: GraphColumnConfig };
 
-export type GraphHiddenRefs = HiddenRefsById;
-export type GraphHiddenRef = GraphRefOptData;
-export type GraphIncludeRefs = IncludeRefsById;
-export type GraphIncludeRef = GraphRefOptData;
+export type GraphExcludeRefs = ExcludeRefsById;
+export type GraphExcludedRef = GraphRefOptData;
+export type GraphIncludeOnlyRefs = IncludeOnlyRefsById;
+export type GraphIncludeOnlyRef = GraphRefOptData;
 
 export type GraphColumnName = GraphZoneType;
 
@@ -178,7 +178,7 @@ export interface UpdateColumnsParams {
 export const UpdateColumnsCommandType = new IpcCommandType<UpdateColumnsParams>('graph/columns/update');
 
 export interface UpdateRefsVisibilityParams {
-	refs: GraphHiddenRef[];
+	refs: GraphExcludedRef[];
 	visible: boolean;
 }
 export const UpdateRefsVisibilityCommandType = new IpcCommandType<UpdateRefsVisibilityParams>(
@@ -251,8 +251,8 @@ export const DidChangeColumnsNotificationType = new IpcNotificationType<DidChang
 );
 
 export interface DidChangeRefsVisibilityParams {
-	hiddenRefs?: GraphHiddenRefs;
-	includeRefs?: GraphIncludeRefs;
+	excludeRefs?: GraphExcludeRefs;
+	includeOnlyRefs?: GraphIncludeOnlyRefs;
 }
 export const DidChangeRefsVisibilityNotificationType = new IpcNotificationType<DidChangeRefsVisibilityParams>(
 	'graph/refs/didChangeVisibility',
